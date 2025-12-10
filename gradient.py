@@ -1,48 +1,40 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 def f(x, y):
+    """Целевая функция"""
     return 7*x**2 - 10*x*y + 7*y**2 - 4*x + 4*y - 8
 
-def grad_fx(x, y):
-    return 14*x - 10*y - 4
-
-def grad_fy(x, y):
-    return -10*x + 14*y + 4
-
+# Определяем диапазон X и Y
 x = np.linspace(-2, 2, 200)
 y = np.linspace(-2, 2, 200)
+
+# Создаем сетку координат и вычисляем значения функции Z
 X, Y = np.meshgrid(x, y)
 Z = f(X, Y)
 
-# 1) surface
-fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(111, projection='3d')
-ax.plot_surface(X, Y, Z, linewidth=0, antialiased=True)
-ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('f(x,y)')
-ax.set_title('Поверхность f(x,y)')
-plt.show()
-plt.savefig("surface.png")
+# --- ГРАФИК ЛИНИЙ УРОВНЯ (Contour Lines) ---
 
-# 2) gradient field (quiver)
-GX = grad_fx(X, Y)
-GY = grad_fy(X, Y)
-step = 10
-fig = plt.figure(figsize=(7,7))
-plt.quiver(X[::step, ::step], Y[::step, ::step],
-           GX[::step, ::step], GY[::step, ::step],
-           angles='xy', scale_units='xy', scale=40)
-plt.xlabel('x'); plt.ylabel('y'); plt.title('Градиент ∇f(x,y)')
-plt.axis('equal'); plt.grid(True)
-plt.show()
-plt.savefig("field.png")
+# Устанавливаем стиль по умолчанию (белый фон)
+plt.style.use('default') 
 
-# 3) streamlines of -∇f (descent direction)
-U = -GX; V = -GY
-fig = plt.figure(figsize=(7,7))
-plt.streamplot(X, Y, U, V, density=1.5, linewidth=1)
-plt.xlabel('x'); plt.ylabel('y'); plt.title('Линии тока (по −∇f)')
-plt.axis('equal'); plt.grid(True)
+fig = plt.figure(figsize=(8, 6), facecolor='white') # Явно задаем белый фон фигуры
+ax = fig.add_subplot(111)
+
+# Используем ax.contour() для рисования линий уровня
+# cmap='viridis' или 'plasma' автоматически присваивает уникальный цвет каждому уровню
+contour_lines = ax.contour(X, Y, Z, levels=20, cmap=plt.cm.viridis)
+
+# Добавляем подписи к линиям уровня (масштаб/значение), inline=True делает подписи "встроенными" в линии
+ax.clabel(contour_lines, inline=True, fontsize=10, fmt='%1.1f') # fmt='%1.1f' для 1 знака после запятой
+
+# Настраиваем внешний вид графика
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_title('Линии уровня функции f(x,y) (Без градусника)')
+ax.axis('equal') # Делает масштаб осей одинаковым
+ax.grid(True, linestyle=':', alpha=0.6)
+
+# Сохраняем и отображаем график
+plt.savefig("contour_lines_clean.png", facecolor='white') # Сохраняем с белым фоном
 plt.show()
-plt.savefig("streamlines.png")
